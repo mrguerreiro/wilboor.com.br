@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Navbar, Nav, Dropdown, Container, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Dropdown, Container } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { DEPARTMENTS } from '../utils/departments';
 import CartDrawer from './CartDrawer';
+import './SiteNavbar.css';
 
 const GridIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -11,114 +12,148 @@ const GridIcon = () => (
   </svg>
 );
 
+const ChevronIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="chev">
+    <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+  </svg>
+);
+
 const CartIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="33"
-    height="33"
-    fill="currentColor"
-    viewBox="0 0 16 16"
-  >
-    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5 13a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1.5 7A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 6.5h8.17L13.898 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+  </svg>
+);
+
+const TruckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+  </svg>
+);
+
+const HamburgerIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+    <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
   </svg>
 );
 
 export default function SiteNavbar() {
   const { totalItems } = useCart();
   const [showCart, setShowCart] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [customer, setCustomer] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const raw = localStorage.getItem('customerUser');
+    if (raw) {
+      try { setCustomer(JSON.parse(raw)); } catch (_) { setCustomer(null); }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('customerToken');
+    localStorage.removeItem('customerUser');
+    setCustomer(null);
+    navigate('/');
+  };
+
+  const firstName = customer?.name?.split(' ')[0] || '';
+  const initial = (customer?.name || '?').trim().charAt(0).toUpperCase();
 
   return (
     <>
-      <Navbar bg="warning" expand="lg" style={{ fontSize: '1.9rem', padding: '0.75rem 0' }}>
+      <div className="topbar-info">
         <Container>
-          <Navbar.Brand as={Link} to="/">
-            <img
-              src="/imagens/logoWilboor.jpg"
-              alt="Wilboor"
-              style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
-            />
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="main-navbar" />
-          <Navbar.Collapse id="main-navbar">
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">Home</Nav.Link>
+          <div className="topbar-inner">
+            <span className="topbar-msg">
+              <TruckIcon />
+              <span className="topbar-accent">Frete grátis</span> em compras acima de R$ 199
+            </span>
+            <span className="topbar-links">
+              <Link to="/quem-somos">Quem somos</Link>
+              <Link to="/trocas-e-devolucoes">Trocas e devoluções</Link>
+              <Link to="/politica-de-privacidade">Privacidade</Link>
+            </span>
+          </div>
+        </Container>
+      </div>
+
+      <nav className="site-navbar">
+        <Container>
+          <div className="navbar-inner">
+            <Link to="/" className="site-brand">
+              <img src="/imagens/logoWilboor.jpg" alt="Wilboor" />
+              <span className="site-brand-text">
+                <span className="brand-name">Wilboor</span>
+                <span className="brand-tag">Loja Online</span>
+              </span>
+            </Link>
+
+            <button
+              type="button"
+              className="site-toggle"
+              aria-label="Abrir menu"
+              onClick={() => setOpen(o => !o)}
+            >
+              <HamburgerIcon />
+            </button>
+
+            <div className={`navbar-collapsible ${open ? 'open' : ''}`}>
               <Dropdown>
-                <Dropdown.Toggle
-                  variant="dark"
-                  id="dropdown-departments"
-                  style={{
-                    borderRadius: 24,
-                    padding: '6px 18px',
-                    fontSize: '0.95rem',
-                    fontWeight: 600,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    border: 'none',
-                    letterSpacing: '0.02em',
-                  }}
-                >
+                <Dropdown.Toggle as="button" className="dept-toggle">
                   <GridIcon />
                   Departamentos
+                  <ChevronIcon />
                 </Dropdown.Toggle>
-                <Dropdown.Menu
-                  style={{
-                    borderRadius: 12,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-                    border: 'none',
-                    padding: 6,
-                    minWidth: 230,
-                    marginTop: 6,
-                  }}
-                >
+                <Dropdown.Menu className="site-dropdown-menu">
                   {DEPARTMENTS.map(dept => (
                     <Dropdown.Item
                       key={dept.slug}
                       as={Link}
                       to={`/departamento/${dept.slug}`}
-                      style={{ borderRadius: 8, padding: '8px 14px', fontSize: '0.9rem' }}
                     >
                       {dept.name}
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Menu>
               </Dropdown>
-            </Nav>
 
-            <Nav className="ms-auto align-items-center">
-              <button
-                onClick={() => setShowCart(true)}
-                aria-label="Abrir carrinho"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  padding: '4px 8px',
-                  lineHeight: 1,
-                }}
-              >
-                <CartIcon />
-                {totalItems > 0 && (
-                  <Badge
-                    bg="danger"
-                    pill
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      fontSize: '0.93rem',
-                      transform: 'translate(40%, -30%)',
-                    }}
-                  >
-                    {totalItems}
-                  </Badge>
+              <div className="site-actions">
+                {customer ? (
+                  <Dropdown align="end">
+                    <Dropdown.Toggle as="button" className="user-toggle">
+                      <span>Olá, {firstName}</span>
+                      <span className="user-avatar">{initial}</span>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="site-dropdown-menu">
+                      <Dropdown.Item disabled style={{ fontSize: '0.78rem', color: '#888' }}>
+                        {customer.email}
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item as={Link} to="/minha-conta">Minha conta</Dropdown.Item>
+                      <Dropdown.Item onClick={handleLogout}>Sair da conta</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                ) : (
+                  <>
+                    <Link to="/login" className="btn-pill btn-pill-ghost">Entrar</Link>
+                    <Link to="/cadastro" className="btn-pill btn-pill-dark">Cadastrar</Link>
+                  </>
                 )}
-              </button>
-            </Nav>
-          </Navbar.Collapse>
+
+                <button
+                  onClick={() => setShowCart(true)}
+                  aria-label="Abrir carrinho"
+                  className="cart-button"
+                >
+                  <CartIcon />
+                  {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+                </button>
+              </div>
+            </div>
+          </div>
         </Container>
-      </Navbar>
+      </nav>
 
       <CartDrawer show={showCart} onHide={() => setShowCart(false)} />
     </>

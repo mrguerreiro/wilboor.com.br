@@ -456,6 +456,194 @@
   margin-bottom: 12px;
 }
 
+/* Clientes */
+.customers-stats-grid {
+  margin-bottom: 18px;
+}
+
+.customers-filter {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  background: white;
+  border: 1px solid #e3e4e8;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.customers-table-card {
+  background: white;
+  border: 1px solid #e3e4e8;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.customers-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+.customers-table th,
+.customers-table td {
+  text-align: left;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.84rem;
+  color: #333;
+  vertical-align: middle;
+}
+
+.customers-table th {
+  background: #fafafa;
+  color: #666;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.customers-table tr:last-child td {
+  border-bottom: none;
+}
+
+.customers-table td strong,
+.customers-table td span {
+  display: block;
+}
+
+.customers-table td span {
+  color: #777;
+  font-size: 0.78rem;
+  margin-top: 2px;
+}
+
+.badge-verified,
+.badge-pending {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.badge-verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.customers-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.customers-detail-button {
+  width: 92px;
+  flex: none;
+}
+
+.customer-detail-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 30, 46, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 20;
+}
+
+.customer-detail-card {
+  width: 100%;
+  max-width: 760px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.customer-detail-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+  background: #1e1e2e;
+  color: white;
+}
+
+.customer-detail-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.customer-detail-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
+}
+
+.customer-detail-header button {
+  align-self: flex-start;
+  background: #ffc107;
+  border: none;
+  border-radius: 6px;
+  color: #1e1e2e;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 8px 14px;
+}
+
+.customer-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px;
+}
+
+.customer-detail-grid div {
+  background: #f8f9fb;
+  border: 1px solid #eceff3;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.customer-detail-grid span {
+  display: block;
+  color: #777;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.customer-detail-grid strong {
+  color: #1e1e2e;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.customer-detail-full {
+  grid-column: 1 / -1;
+}
+
+.customer-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.customer-detail-actions .btn-admin-sm-red {
+  flex: none;
+  padding: 10px 16px;
+}
+
 /* Estado vazio */
 .empty-state {
   text-align: center;

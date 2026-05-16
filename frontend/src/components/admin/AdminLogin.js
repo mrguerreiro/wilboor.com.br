@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import './admin.css';
-
-const ADMIN_PASSWORD = '8751161';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('adminAuth') === 'true') {
-      navigate('/admin/painel');
-    }
-  }, [navigate]);
+    sessionStorage.removeItem('adminToken');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminAuth');
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      localStorage.setItem('adminAuth', 'true');
-      navigate('/admin/painel');
-    } else {
-      setError('Senha incorreta. Tente novamente.');
+    setError('');
+    setLoading(true);
+    try {
+      const { data } = await api.post('/admin/auth/login', { password });
+      sessionStorage.setItem('adminToken', data.token);
+      navigate('/admin/painel', { replace: true });
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Erro ao tentar autenticar. Tente novamente.';
+      setError(msg);
       setPassword('');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,6 +45,7 @@ export default function AdminLogin() {
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               autoFocus
+              disabled={loading}
             />
           </div>
           {error && <p className="alert-error">{error}</p>}
@@ -46,14 +53,16 @@ export default function AdminLogin() {
             type="submit"
             className="btn-admin-primary"
             style={{ width: '100%', marginBottom: '10px' }}
+            disabled={loading}
           >
-            Acessar Painel
+            {loading ? 'Verificando...' : 'Acessar Painel'}
           </button>
           <button
             type="button"
             className="btn-admin-secondary"
             style={{ width: '100%' }}
             onClick={() => navigate('/')}
+            disabled={loading}
           >
             Voltar ao Site
           </button>
