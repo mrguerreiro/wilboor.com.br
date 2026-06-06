@@ -22,7 +22,7 @@ export default function AdminLogin() {
     try {
       const { data } = await api.post('/admin/auth/login', { password });
       sessionStorage.setItem('adminToken', data.token);
-      navigate('/admin/painel', { replace: true });
+      navigate('/tocadochefe/painel', { replace: true });
     } catch (err) {
       const msg = err.response?.data?.message || 'Erro ao tentar autenticar. Tente novamente.';
       setError(msg);

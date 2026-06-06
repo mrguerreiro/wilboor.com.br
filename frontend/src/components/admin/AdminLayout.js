@@ -17,7 +17,7 @@ export default function AdminLayout() {
 
     if (!token) {
       setCheckingAuth(false);
-      navigate('/admin', { replace: true });
+      navigate('/tocadochefe', { replace: true });
       return () => { active = false; };
     }
 
@@ -29,7 +29,7 @@ export default function AdminLayout() {
         sessionStorage.removeItem('adminToken');
         localStorage.removeItem('adminToken');
     localStorage.removeItem('adminAuth');
-        if (active) navigate('/admin', { replace: true });
+        if (active) navigate('/tocadochefe', { replace: true });
       })
       .finally(() => {
         if (active) setCheckingAuth(false);
@@ -42,7 +42,7 @@ export default function AdminLayout() {
     sessionStorage.removeItem('adminToken');
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminAuth');
-    navigate('/admin', { replace: true });
+    navigate('/tocadochefe', { replace: true });
   };
 
   if (checkingAuth) {
@@ -56,7 +56,7 @@ export default function AdminLayout() {
   }
 
   if (!authorized) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/tocadochefe" replace />;
   }
 
   return (
@@ -67,7 +67,7 @@ export default function AdminLayout() {
           <ul className="sidebar-nav">
             <li>
               <NavLink
-                to="/admin/painel"
+                to="/tocadochefe/painel"
                 end
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
@@ -76,7 +76,7 @@ export default function AdminLayout() {
             </li>
             <li>
               <NavLink
-                to="/admin/painel/produtos"
+                to="/tocadochefe/painel/produtos"
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
                 <span>🗂</span> Gerenciar Produtos
@@ -84,7 +84,7 @@ export default function AdminLayout() {
             </li>
             <li>
               <NavLink
-                to="/admin/painel/novo-produto"
+                to="/tocadochefe/painel/novo-produto"
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
                 <span>➕</span> Novo Produto
@@ -92,7 +92,7 @@ export default function AdminLayout() {
             </li>
             <li>
               <NavLink
-                to="/admin/painel/clientes"
+                to="/tocadochefe/painel/clientes"
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
                 <span>CL</span> Clientes

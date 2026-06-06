@@ -66,9 +66,12 @@ export default function SiteNavbar() {
         <Container>
           <div className="topbar-inner">
             <span className="topbar-msg">
+              {/*
               <TruckIcon />
               <span className="topbar-accent">Frete grátis</span> em compras acima de R$ 199
+              */}
             </span>
+            
             <span className="topbar-links">
               <Link to="/quem-somos">Quem somos</Link>
               <Link to="/trocas-e-devolucoes">Trocas e devoluções</Link>

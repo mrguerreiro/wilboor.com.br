@@ -33,11 +33,11 @@ api.interceptors.response.use(
         const path = window.location.pathname;
 
         if (status === 401 || status === 403) {
-            if (path.startsWith('/admin/painel')) {
+            if (path.startsWith('/tocadochefe/painel')) {
                 sessionStorage.removeItem('adminToken');
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('adminAuth');
-                window.location.href = '/admin';
+                window.location.href = '/tocadochefe';
             } else if (path.startsWith('/minha-conta')) {
                 localStorage.removeItem('customerToken');
                 localStorage.removeItem('customerUser');

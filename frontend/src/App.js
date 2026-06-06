@@ -43,8 +43,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/minha-conta" element={<RequireCustomerAuth><Account /></RequireCustomerAuth>} />
           <Route path="/verificar-email/:token" element={<VerifyEmail />} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/painel" element={<AdminLayout />}>
+          <Route path="/tocadochefe" element={<AdminLogin />} />
+          <Route path="/tocadochefe/painel" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="produtos" element={<ManageProducts />} />
             <Route path="novo-produto" element={<NewProduct />} />
