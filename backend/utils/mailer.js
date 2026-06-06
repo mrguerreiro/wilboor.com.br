@@ -50,6 +50,45 @@ const verifySmtpConnection = async () => {
     await transporter.verify();
 };
 
+const sendEmail = async ({ to, subject, html, text }) => {
+    const transporter = getTransporter();
+    const smtpUser = cleanEnv(process.env.SMTP_USER);
+    const from = cleanEnv(process.env.MAIL_FROM) || `"Wilboor.com" <${smtpUser}>`;
+    const recipient = cleanEnv(to);
+    const bcc = cleanEnv(process.env.MAIL_BCC_CONFIRMATIONS);
+
+    const info = await transporter.sendMail({
+        from,
+        sender: smtpUser,
+        replyTo: smtpUser,
+        envelope: {
+            from: smtpUser,
+            to: bcc ? [recipient, bcc] : recipient
+        },
+        to: recipient,
+        bcc: bcc || undefined,
+        subject,
+        html,
+        text,
+    });
+
+    const accepted = info.accepted || [];
+    const rejected = info.rejected || [];
+
+    console.log('[mailer] E-mail enviado:', {
+        messageId: info.messageId,
+        accepted,
+        rejected,
+        response: info.response
+    });
+
+    if (!accepted.includes(recipient)) {
+        throw new Error(`Servidor SMTP não aceitou o destinatário ${recipient}. Rejeitados: ${rejected.join(', ') || 'nenhum'}`);
+    }
+
+    return info;
+};
+
 const sendVerificationEmail = async ({ to, name, verifyUrl }) => {
     const transporter = getTransporter();
     const smtpUser = cleanEnv(process.env.SMTP_USER);
@@ -110,5 +149,5 @@ const sendVerificationEmail = async ({ to, name, verifyUrl }) => {
     return info;
 };
 
-module.exports = { sendVerificationEmail, verifySmtpConnection };
+module.exports = { sendVerificationEmail, sendEmail, verifySmtpConnection };
 

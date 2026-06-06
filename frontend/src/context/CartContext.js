@@ -31,6 +31,8 @@ export const CartProvider = ({ children }) => {
         name: product.name,
         price: product.price,
         images: product.images,
+        weight: product.weight || 0,
+        dimensions: product.dimensions || { length: 0, width: 0, height: 0 },
         quantity: 1,
       }];
     });

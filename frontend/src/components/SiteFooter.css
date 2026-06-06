@@ -47,6 +47,20 @@
   color: #ffc107;
 }
 
+.site-footer .footer-contact-link {
+  color: #cccccc;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-footer .footer-contact-link:hover {
+  color: #ffc107;
+}
+
+.site-footer .footer-icon {
+  margin-right: 0.4rem;
+}
+
 .site-footer .footer-divider {
   border-color: #444444 !important;
   opacity: 1;
