@@ -2,6 +2,8 @@
 
 E-commerce completo desenvolvido com React no frontend e Node.js/Express no backend, com integração ao Mercado Pago para pagamentos e Melhor Envio para cálculo de frete.
 
+![Tela inicial do Wilboor](docs/screenshot-home.png)
+
 ---
 
 ## Visão Geral
