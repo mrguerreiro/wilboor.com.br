@@ -17,7 +17,7 @@ export default function ManageProducts() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await api.get('/products');
+      const res = await api.get('/admin/products');
       setProducts(res.data);
     } catch (e) {
       console.error('Erro ao buscar produtos:', e);
@@ -31,7 +31,7 @@ export default function ManageProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm('Tem certeza que deseja deletar este produto permanentemente?')) return;
     try {
-      await api.delete(`/products/${id}`);
+      await api.delete(`/admin/products/${id}`);
       setProducts(prev => prev.filter(p => p._id !== id));
     } catch (e) {
       alert('Erro ao deletar produto. Verifique se o servidor está rodando.');
@@ -39,12 +39,22 @@ export default function ManageProducts() {
   };
 
   const handleToggleFeatured = async (product) => {
+    const newValue = !product.featured;
     try {
-      const updated = { ...product, featured: !product.featured };
-      await api.put(`/products/${product._id}`, updated);
-      setProducts(prev => prev.map(p => p._id === product._id ? updated : p));
+      await api.put(`/admin/products/${product._id}`, { featured: newValue });
+      setProducts(prev => prev.map(p => p._id === product._id ? { ...p, featured: newValue } : p));
     } catch (e) {
       alert('Erro ao atualizar destaque do produto.');
+    }
+  };
+
+  const handleTogglePaused = async (product) => {
+    const newValue = !product.paused;
+    try {
+      await api.put(`/admin/products/${product._id}`, { paused: newValue });
+      setProducts(prev => prev.map(p => p._id === product._id ? { ...p, paused: newValue } : p));
+    } catch (e) {
+      alert('Erro ao pausar/publicar produto.');
     }
   };
 
@@ -83,16 +93,22 @@ export default function ManageProducts() {
 
       <div className="products-grid">
         {filtered.map(product => (
-          <div key={product._id} className="product-card">
-            {product.images?.[0] ? (
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="product-card-img"
-              />
-            ) : (
-              <div className="product-card-img-placeholder">Sem imagem</div>
-            )}
+          <div key={product._id} className={`product-card${product.paused ? ' product-card-paused' : ''}`}>
+            <div style={{ position: 'relative' }}>
+              {product.images?.[0] ? (
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  className="product-card-img"
+                  style={product.paused ? { opacity: 0.4 } : undefined}
+                />
+              ) : (
+                <div className="product-card-img-placeholder">Sem imagem</div>
+              )}
+              {product.paused && (
+                <span className="badge-paused">PAUSADO</span>
+              )}
+            </div>
             <div className="product-card-body">
               {product.code && (
                 <span style={{ fontSize: '11px', fontWeight: '700', color: '#888', letterSpacing: '1px', background: '#f0f0f0', borderRadius: '4px', padding: '1px 6px' }}>
@@ -118,6 +134,13 @@ export default function ManageProducts() {
                   title={product.featured ? 'Remover do destaque' : 'Destacar produto'}
                 >
                   {product.featured ? '★ Remover' : '☆ Destacar'}
+                </button>
+                <button
+                  className={product.paused ? 'btn-admin-sm-green' : 'btn-admin-sm-gray'}
+                  onClick={() => handleTogglePaused(product)}
+                  title={product.paused ? 'Publicar produto no site' : 'Pausar exibição no site'}
+                >
+                  {product.paused ? '▶ Publicar' : '⏸ Pausar'}
                 </button>
                 <button
                   className="btn-admin-sm-red"

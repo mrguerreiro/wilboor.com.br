@@ -71,11 +71,11 @@ export default function NewProduct() {
 
     try {
       if (editing) {
-        await api.put(`/products/${editing._id}`, body);
+        await api.put(`/admin/products/${editing._id}`, body);
         setSuccess('Produto atualizado com sucesso!');
         setTimeout(() => navigate('/admin/painel/produtos'), 1500);
       } else {
-        await api.post('/products', body);
+        await api.post('/admin/products', body);
         setSuccess('Produto cadastrado com sucesso!');
         setForm(EMPTY_FORM);
       }

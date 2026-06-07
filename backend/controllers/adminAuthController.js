@@ -19,7 +19,7 @@ const loginAdmin = (req, res) => {
     const token = jwt.sign(
         { role: 'admin' },
         process.env.JWT_SECRET,
-        { expiresIn: '8h' }
+        { expiresIn: '1h' }
     );
 
     res.json({ token });

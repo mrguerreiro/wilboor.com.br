@@ -23,6 +23,14 @@ const formatPhone = (v) => {
   return d.replace(/(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
 };
 
+const formatCpf = (v) => {
+  const d = onlyDigits(v).slice(0, 11);
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+};
+
 export default function Register() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,6 +42,7 @@ export default function Register() {
     confirmPassword: '',
     birthDate: '',
     phone: '',
+    cpf: '',
     address: {
       cep: '',
       street: '',
@@ -103,6 +112,7 @@ export default function Register() {
         password: form.password,
         birthDate: form.birthDate,
         phone: form.phone,
+        cpf: form.cpf,
         address: form.address
       };
       const { data } = await api.post('/auth/register', payload);
@@ -116,7 +126,7 @@ export default function Register() {
   };
 
   return (
-    <>
+    <div className="auth-page-wrapper">
       <SiteNavbar />
       <div className="auth-page">
         <div className="auth-card">
@@ -166,6 +176,17 @@ export default function Register() {
 
             <div className="form-row">
               <div className="form-group">
+                <label>CPF *</label>
+                <input
+                  type="text"
+                  value={form.cpf}
+                  onChange={(e) => setField('cpf', formatCpf(e.target.value))}
+                  placeholder="000.000.000-00"
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="form-group">
                 <label>Data de nascimento *</label>
                 <input
                   type="date"
@@ -175,6 +196,9 @@ export default function Register() {
                   disabled={loading}
                 />
               </div>
+            </div>
+
+            <div className="form-row">
               <div className="form-group">
                 <label>Senha *</label>
                 <input
@@ -186,18 +210,17 @@ export default function Register() {
                   disabled={loading}
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <label>Confirmar senha *</label>
-              <input
-                type="password"
-                value={form.confirmPassword}
-                onChange={(e) => setField('confirmPassword', e.target.value)}
-                minLength={6}
-                required
-                disabled={loading}
-              />
+              <div className="form-group">
+                <label>Confirmar senha *</label>
+                <input
+                  type="password"
+                  value={form.confirmPassword}
+                  onChange={(e) => setField('confirmPassword', e.target.value)}
+                  minLength={6}
+                  required
+                  disabled={loading}
+                />
+              </div>
             </div>
 
             <div className="auth-section-title">Endereço</div>
@@ -297,6 +320,6 @@ export default function Register() {
         </div>
       </div>
       <SiteFooter />
-    </>
+    </div>
   );
 }

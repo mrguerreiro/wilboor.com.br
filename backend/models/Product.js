@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
     department: { type: String, default: '' },
     stock: { type: Number, default: 1 },
     featured: { type: Boolean, default: false },
+    paused: { type: Boolean, default: false },
     weight: { type: Number, default: 0 },
     dimensions: {
         length: { type: Number, default: 0 },

@@ -26,11 +26,60 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+let isRefreshing = false;
+let pendingRequests = [];
+
+const processQueue = (error, token = null) => {
+    pendingRequests.forEach(({ resolve, reject }) => {
+        if (error) reject(error);
+        else resolve(token);
+    });
+    pendingRequests = [];
+};
+
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
+        const originalRequest = error.config;
         const status = error.response?.status;
         const path = window.location.pathname;
+        const isAdminRoute = (originalRequest.url || '').includes('/admin/');
+
+        if (status === 401 && !originalRequest._retry && !isAdminRoute) {
+            const refreshToken = localStorage.getItem('customerRefreshToken');
+
+            if (refreshToken) {
+                if (isRefreshing) {
+                    return new Promise((resolve, reject) => {
+                        pendingRequests.push({ resolve, reject });
+                    }).then(token => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return api(originalRequest);
+                    });
+                }
+
+                originalRequest._retry = true;
+                isRefreshing = true;
+
+                try {
+                    const { data } = await axios.post(`${getApiBaseUrl()}/auth/refresh`, { refreshToken });
+                    localStorage.setItem('customerToken', data.token);
+                    localStorage.setItem('customerRefreshToken', data.refreshToken);
+                    processQueue(null, data.token);
+                    originalRequest.headers.Authorization = `Bearer ${data.token}`;
+                    return api(originalRequest);
+                } catch {
+                    processQueue(new Error('Sessão expirada'));
+                    localStorage.removeItem('customerToken');
+                    localStorage.removeItem('customerRefreshToken');
+                    localStorage.removeItem('customerUser');
+                    window.location.href = '/login';
+                    return Promise.reject(error);
+                } finally {
+                    isRefreshing = false;
+                }
+            }
+        }
 
         if (status === 401 || status === 403) {
             if (path.startsWith('/tocadochefe/painel')) {
@@ -40,6 +89,7 @@ api.interceptors.response.use(
                 window.location.href = '/tocadochefe';
             } else if (path.startsWith('/minha-conta')) {
                 localStorage.removeItem('customerToken');
+                localStorage.removeItem('customerRefreshToken');
                 localStorage.removeItem('customerUser');
                 window.location.href = '/login';
             }

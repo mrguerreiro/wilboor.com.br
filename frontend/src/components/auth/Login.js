@@ -34,6 +34,7 @@ export default function Login() {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('customerToken', data.token);
+      localStorage.setItem('customerRefreshToken', data.refreshToken);
       localStorage.setItem('customerUser', JSON.stringify(data.user));
       navigate(redirectTo, { replace: true });
     } catch (err) {
@@ -63,7 +64,7 @@ export default function Login() {
   };
 
   return (
-    <>
+    <div className="auth-page-wrapper">
       <SiteNavbar />
       <div className="auth-page">
         <div className="auth-card narrow">
@@ -126,6 +127,6 @@ export default function Login() {
         </div>
       </div>
       <SiteFooter />
-    </>
+    </div>
   );
 }

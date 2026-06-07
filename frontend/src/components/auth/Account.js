@@ -23,11 +23,20 @@ const formatPhone = (v) => {
   return d.replace(/(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
 };
 
+const formatCpf = (v) => {
+  const d = onlyDigits(v).slice(0, 11);
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+};
+
 const emptyForm = {
   name: '',
   email: '',
   birthDate: '',
   phone: '',
+  cpf: '',
   address: {
     cep: '',
     street: '',
@@ -69,6 +78,7 @@ export default function Account() {
           email: data.email || '',
           birthDate: toDateInput(data.birthDate),
           phone: data.phone || '',
+          cpf: data.cpf ? formatCpf(data.cpf) : '',
           address: {
             cep: data.address?.cep || '',
             street: data.address?.street || '',
@@ -125,6 +135,7 @@ export default function Account() {
         name: form.name.trim(),
         birthDate: form.birthDate,
         phone: form.phone,
+        cpf: form.cpf,
         address: form.address
       };
       const { data } = await api.put('/auth/me', payload);
@@ -138,7 +149,7 @@ export default function Account() {
   };
 
   return (
-    <>
+    <div className="auth-page-wrapper">
       <SiteNavbar />
       <div className="auth-page">
         <div className="auth-card">
@@ -182,15 +193,28 @@ export default function Account() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Data de nascimento *</label>
-                <input
-                  type="date"
-                  value={form.birthDate}
-                  onChange={(e) => setField('birthDate', e.target.value)}
-                  required
-                  disabled={saving}
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>CPF *</label>
+                  <input
+                    type="text"
+                    value={form.cpf}
+                    onChange={(e) => setField('cpf', formatCpf(e.target.value))}
+                    placeholder="000.000.000-00"
+                    required
+                    disabled={saving}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Data de nascimento *</label>
+                  <input
+                    type="date"
+                    value={form.birthDate}
+                    onChange={(e) => setField('birthDate', e.target.value)}
+                    required
+                    disabled={saving}
+                  />
+                </div>
               </div>
 
               <div className="auth-section-title">Endereço</div>
@@ -284,6 +308,6 @@ export default function Account() {
         </div>
       </div>
       <SiteFooter />
-    </>
+    </div>
   );
 }

@@ -2,15 +2,46 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 const dotenv = require('dotenv');
 
 // Garante que o .env do backend seja carregado mesmo quando o servidor é iniciado pela raiz do projeto.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(helmet({
+    contentSecurityPolicy: false,
+}));
+
+const allowedOrigins = [
+    // localhost sempre permitido (dev local)
+    'http://localhost:3000',
+    'http://localhost:5173',
+    // origens de produção configuradas no .env
+    ...(process.env.FRONTEND_URL || '')
+        .split(',')
+        .map(o => o.trim())
+        .filter(Boolean)
+        .flatMap(origin => {
+            const variants = [origin];
+            if (origin.startsWith('https://')) variants.push(origin.replace('https://', 'http://'));
+            if (origin.startsWith('http://'))  variants.push(origin.replace('http://', 'https://'));
+            if (origin.includes('://www.'))    variants.push(origin.replace('://www.', '://'));
+            else                               variants.push(origin.replace('://', '://www.'));
+            return variants;
+        }),
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error('Origem não permitida pelo CORS'));
+    },
+    credentials: true,
+}));
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Middleware de logging de requisições (debug)
 app.use((req, res, next) => {
@@ -19,7 +50,14 @@ app.use((req, res, next) => {
 });
 
 // Conexão ao MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+// authSource deve ser o banco onde o usuário foi criado (wilboor, não admin)
+const _baseUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wilboor';
+const _dbName = _baseUri.split('/').pop().split('?')[0];
+const mongoUri = (process.env.MONGODB_USER && process.env.MONGODB_PASSWORD)
+    ? `mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${_baseUri.replace(/^mongodb:\/\//, '')}?authSource=${_dbName}`
+    : _baseUri;
+
+mongoose.connect(mongoUri)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.log(err));
 
@@ -29,6 +67,7 @@ const categoryRoutes = require('./routes/categories');
 const paymentRoutes = require('./routes/payment');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminCustomerRoutes = require('./routes/adminCustomers');
+const adminProductRoutes = require('./routes/adminProducts');
 const customerAuthRoutes = require('./routes/customerAuth');
 const shippingRoutes = require('./routes/shipping');
 const { verifySmtpConnection, sendEmail } = require('./utils/mailer');
@@ -39,6 +78,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin/customers', adminCustomerRoutes);
+app.use('/api/admin/products', adminProductRoutes);
 app.use('/api/auth', customerAuthRoutes);
 app.use('/api/shipping', shippingRoutes);
 

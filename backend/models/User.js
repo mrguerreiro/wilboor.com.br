@@ -18,11 +18,14 @@ const userSchema = new mongoose.Schema({
 
     birthDate: { type: Date },
     phone: { type: String, trim: true },
+    cpf: { type: String, trim: true },
     address: { type: addressSchema, default: () => ({}) },
 
     isEmailVerified: { type: Boolean, default: false },
     emailVerificationToken: { type: String },
-    emailVerificationExpires: { type: Date }
+    emailVerificationExpires: { type: Date },
+
+    refreshToken: { type: String, select: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

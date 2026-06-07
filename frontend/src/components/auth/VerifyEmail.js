@@ -21,6 +21,7 @@ export default function VerifyEmail() {
         const { data } = await api.get(`/auth/verify/${token}`);
         if (data.token && data.user) {
           localStorage.setItem('customerToken', data.token);
+          localStorage.setItem('customerRefreshToken', data.refreshToken);
           localStorage.setItem('customerUser', JSON.stringify(data.user));
         }
         setStatus('success');

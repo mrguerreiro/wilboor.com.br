@@ -1,10 +1,20 @@
-.auth-page {
+.auth-page-wrapper {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+.auth-page-wrapper > .site-footer {
+  margin-top: auto;
+}
+
+.auth-page {
+  flex: 1;
   background: #f4f5f7;
   padding: 40px 16px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 

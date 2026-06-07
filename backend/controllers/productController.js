@@ -19,6 +19,15 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
+        const products = await Product.find({ paused: { $ne: true } }).populate('categories');
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getAdminProducts = async (req, res) => {
+    try {
         const products = await Product.find().populate('categories');
         res.json(products);
     } catch (error) {
@@ -51,4 +60,4 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-module.exports = { createProduct, getProducts, updateProduct, deleteProduct };
+module.exports = { createProduct, getProducts, getAdminProducts, updateProduct, deleteProduct };

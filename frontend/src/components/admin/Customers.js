@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 
+const formatCpf = (v) => {
+  const d = String(v || '').replace(/\D/g, '');
+  if (d.length !== 11) return v || 'Não informado';
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+};
+
 const formatDate = (value) => {
   if (!value) return 'Não informado';
   const date = new Date(value);
@@ -195,6 +201,10 @@ export default function Customers() {
               <div>
                 <span>Telefone</span>
                 <strong>{selectedCustomer.phone || 'Não informado'}</strong>
+              </div>
+              <div>
+                <span>CPF</span>
+                <strong>{formatCpf(selectedCustomer.cpf)}</strong>
               </div>
               <div>
                 <span>Data de nascimento</span>

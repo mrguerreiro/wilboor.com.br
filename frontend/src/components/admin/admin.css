@@ -383,6 +383,54 @@
 
 .btn-admin-sm-red:hover { opacity: 0.85; }
 
+.btn-admin-sm-gray {
+  background: #6c757d;
+  border: none;
+  color: white;
+  padding: 7px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  flex: 1;
+  transition: opacity 0.15s;
+}
+
+.btn-admin-sm-gray:hover { opacity: 0.85; }
+
+.btn-admin-sm-green {
+  background: #28a745;
+  border: none;
+  color: white;
+  padding: 7px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  flex: 1;
+  transition: opacity 0.15s;
+}
+
+.btn-admin-sm-green:hover { opacity: 0.85; }
+
+.product-card-paused {
+  opacity: 0.75;
+  border-color: #ccc;
+}
+
+.badge-paused {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #6c757d;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
 /* Botões do Formulário */
 .btn-admin-primary {
   background: #ffc107;
@@ -650,4 +698,104 @@
   padding: 40px;
   color: #999;
   font-size: 0.9rem;
+}
+
+/* ===== Responsividade ===== */
+
+@media (max-width: 900px) {
+  .admin-container {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    flex-direction: row;
+  }
+
+  .sidebar-header {
+    display: none;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .sidebar-nav li {
+    margin-bottom: 0;
+  }
+
+  .sidebar-divider {
+    display: none;
+  }
+
+  .sidebar-nav a,
+  .sidebar-nav button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-content {
+    padding: 20px 16px;
+    min-height: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .customers-filter {
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .customer-detail-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customers-filter {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-content {
+    padding: 14px 12px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .customer-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-detail-full {
+    grid-column: auto;
+  }
+
+  .customer-detail-panel {
+    padding: 12px;
+  }
 }

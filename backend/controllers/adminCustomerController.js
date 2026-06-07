@@ -12,6 +12,7 @@ const buildCustomerFilter = (search) => {
             { name: regex },
             { email: regex },
             { phone: regex },
+            { cpf: regex },
             { 'address.city': regex },
             { 'address.state': regex }
         ];
