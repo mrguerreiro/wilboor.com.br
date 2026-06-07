@@ -29,7 +29,7 @@ E-commerce completo desenvolvido com React no frontend e Node.js/Express no back
 - Carrinho de compras com cálculo de frete por CEP
 - Checkout com geração de link de pagamento Mercado Pago (PIX/cartão)
 
-### Painel Administrativo (`/tocadochefe`)
+### Painel Administrativo
 - Gerenciar produtos: criar, editar, deletar, destacar, pausar/publicar
 - Gerenciar clientes: busca por nome, e-mail, CPF; visualização de dados completos
 - Produtos pausados somem do site mas permanecem no banco
