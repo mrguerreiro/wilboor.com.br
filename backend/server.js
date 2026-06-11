@@ -50,12 +50,7 @@ app.use((req, res, next) => {
 });
 
 // Conexão ao MongoDB
-// authSource deve ser o banco onde o usuário foi criado (wilboor, não admin)
-const _baseUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wilboor';
-const _dbName = _baseUri.split('/').pop().split('?')[0];
-const mongoUri = (process.env.MONGODB_USER && process.env.MONGODB_PASSWORD)
-    ? `mongodb://${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@${_baseUri.replace(/^mongodb:\/\//, '')}?authSource=${_dbName}`
-    : _baseUri;
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/wilboor';
 
 mongoose.connect(mongoUri)
     .then(() => console.log('MongoDB connected'))
