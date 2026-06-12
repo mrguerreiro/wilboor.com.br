@@ -171,6 +171,10 @@ function listRoutes() {
 }
 
 console.log('CWD', process.cwd());
+console.log('[smtp-debug] host:', process.env.SMTP_HOST);
+console.log('[smtp-debug] port:', process.env.SMTP_PORT);
+console.log('[smtp-debug] user:', process.env.SMTP_USER);
+console.log('[smtp-debug] secure:', process.env.SMTP_SECURE);
 app.listen(process.env.PORT || 5000, () => {
     console.log('Server is running...');
 
