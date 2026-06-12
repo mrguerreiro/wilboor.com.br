@@ -1,98 +1,54 @@
-const nodemailer = require('nodemailer');
-
-let cachedTransporter = null;
+const { BrevoClient } = require('@getbrevo/brevo');
 
 const cleanEnv = (value) => String(value || '').trim();
 
-const getSecureMode = (port) => {
-    if (process.env.SMTP_SECURE !== undefined) {
-        return cleanEnv(process.env.SMTP_SECURE).toLowerCase() === 'true';
-    }
-    return Number(port) === 465;
+// Parseia "Nome <email>" ou retorna { email } se não houver nome
+const parseSender = (mailFrom, fallbackEmail) => {
+    const raw = cleanEnv(mailFrom) || `"Wilboor.com" <${fallbackEmail}>`;
+    const match = raw.match(/^"?([^"<]+)"?\s*<([^>]+)>$/);
+    if (match) return { name: match[1].trim(), email: match[2].trim() };
+    return { email: raw };
 };
 
-const getTransporter = () => {
-    if (cachedTransporter) return cachedTransporter;
-
-    const SMTP_HOST = cleanEnv(process.env.SMTP_HOST);
-    const SMTP_PORT = Number(cleanEnv(process.env.SMTP_PORT));
-    const SMTP_USER = cleanEnv(process.env.SMTP_USER);
-    const SMTP_PASS = cleanEnv(process.env.SMTP_PASS);
-
-    if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-        throw new Error('Configuração SMTP ausente. Defina SMTP_HOST, SMTP_PORT, SMTP_USER e SMTP_PASS no .env');
-    }
-
-    const secure = getSecureMode(SMTP_PORT);
-
-    cachedTransporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: SMTP_PORT,
-        secure,
-        auth: { user: SMTP_USER, pass: SMTP_PASS },
-        requireTLS: !secure,
-        connectionTimeout: 30000,
-        greetingTimeout: 30000,
-        socketTimeout: 30000,
-        logger: cleanEnv(process.env.SMTP_DEBUG).toLowerCase() === 'true',
-        debug: cleanEnv(process.env.SMTP_DEBUG).toLowerCase() === 'true',
-        tls: {
-            servername: SMTP_HOST,
-            rejectUnauthorized: cleanEnv(process.env.SMTP_REJECT_UNAUTHORIZED).toLowerCase() === 'true'
-        }
-    });
-
-    return cachedTransporter;
+const getClient = () => {
+    const apiKey = cleanEnv(process.env.BREVO_API_KEY);
+    if (!apiKey) throw new Error('BREVO_API_KEY não definida no .env');
+    return new BrevoClient({ apiKey });
 };
 
 const verifySmtpConnection = async () => {
-    const transporter = getTransporter();
-    await transporter.verify();
+    const client = getClient();
+    await client.account.getAccount();
 };
 
 const sendEmail = async ({ to, subject, html, text }) => {
-    const transporter = getTransporter();
-    const smtpUser = cleanEnv(process.env.SMTP_USER);
-    const from = cleanEnv(process.env.MAIL_FROM) || `"Wilboor.com" <${smtpUser}>`;
+    const client = getClient();
+    const sender = parseSender(process.env.MAIL_FROM, process.env.SMTP_USER);
     const recipient = cleanEnv(to);
     const bcc = cleanEnv(process.env.MAIL_BCC_CONFIRMATIONS);
 
-    const info = await transporter.sendMail({
-        from,
-        sender: smtpUser,
-        replyTo: smtpUser,
-        envelope: {
-            from: smtpUser,
-            to: bcc ? [recipient, bcc] : recipient
-        },
-        to: recipient,
-        bcc: bcc || undefined,
+    const body = {
+        sender,
+        to: [{ email: recipient }],
         subject,
-        html,
-        text,
-    });
+        htmlContent: html,
+        ...(text && { textContent: text }),
+        ...(bcc && { bcc: [{ email: bcc }] }),
+    };
 
-    const accepted = info.accepted || [];
-    const rejected = info.rejected || [];
+    const info = await client.transactionalEmails.sendTransacEmail(body);
 
     console.log('[mailer] E-mail enviado:', {
         messageId: info.messageId,
-        accepted,
-        rejected,
-        response: info.response
+        to: recipient,
     });
-
-    if (!accepted.includes(recipient)) {
-        throw new Error(`Servidor SMTP não aceitou o destinatário ${recipient}. Rejeitados: ${rejected.join(', ') || 'nenhum'}`);
-    }
 
     return info;
 };
 
 const sendVerificationEmail = async ({ to, name, verifyUrl }) => {
-    const transporter = getTransporter();
-    const smtpUser = cleanEnv(process.env.SMTP_USER);
-    const from = cleanEnv(process.env.MAIL_FROM) || `"Wilboor.com" <${smtpUser}>`;
+    const client = getClient();
+    const sender = parseSender(process.env.MAIL_FROM, process.env.SMTP_USER);
     const recipient = cleanEnv(to);
     const bcc = cleanEnv(process.env.MAIL_BCC_CONFIRMATIONS);
 
@@ -114,40 +70,24 @@ const sendVerificationEmail = async ({ to, name, verifyUrl }) => {
         </div>
     `;
 
-    const info = await transporter.sendMail({
-        from,
-        sender: smtpUser,
-        replyTo: smtpUser,
-        envelope: {
-            from: smtpUser,
-            to: bcc ? [recipient, bcc] : recipient
-        },
-        to: recipient,
-        bcc: bcc || undefined,
+    const body = {
+        sender,
+        to: [{ email: recipient }],
         subject: 'Confirme seu e-mail - Wilboor',
-        headers: {
-            'X-Wilboor-Mail-Type': 'customer-email-verification'
-        },
-        html,
-        text: `Olá ${name}, confirme seu e-mail acessando: ${verifyUrl}`
-    });
+        htmlContent: html,
+        textContent: `Olá ${name}, confirme seu e-mail acessando: ${verifyUrl}`,
+        headers: { 'X-Wilboor-Mail-Type': 'customer-email-verification' },
+        ...(bcc && { bcc: [{ email: bcc }] }),
+    };
 
-    const accepted = info.accepted || [];
-    const rejected = info.rejected || [];
+    const info = await client.transactionalEmails.sendTransacEmail(body);
 
     console.log('[mailer] E-mail de verificação enviado:', {
         messageId: info.messageId,
-        accepted,
-        rejected,
-        response: info.response
+        to: recipient,
     });
-
-    if (!accepted.includes(recipient)) {
-        throw new Error(`Servidor SMTP não aceitou o destinatário ${recipient}. Rejeitados: ${rejected.join(', ') || 'nenhum'}`);
-    }
 
     return info;
 };
 
 module.exports = { sendVerificationEmail, sendEmail, verifySmtpConnection };
-
