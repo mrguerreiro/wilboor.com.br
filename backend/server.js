@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 // Garante que o .env do backend seja carregado mesmo quando o servidor é iniciado pela raiz do projeto.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet({
     contentSecurityPolicy: false,
