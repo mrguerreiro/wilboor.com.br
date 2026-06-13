@@ -6,7 +6,7 @@ const { URL } = require('url');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const router = express.Router();
-const MELHOR_ENVIO_BASE_URL = process.env.MELHOR_ENVIO_BASE_URL?.trim() || 'https://api.melhorenvio.com.br';
+const MELHOR_ENVIO_BASE_URL = process.env.MELHOR_ENVIO_BASE_URL?.trim() || 'https://melhorenvio.com.br';
 const MELHOR_ENVIO_TOKEN = process.env.MELHOR_ENVIO_TOKEN?.trim();
 const isProduction = process.env.NODE_ENV === 'production';
 
