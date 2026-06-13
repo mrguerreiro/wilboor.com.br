@@ -118,15 +118,15 @@ router.post('/quote', async (req, res) => {
       services: Array.isArray(services) && services.length > 0 ? services : undefined,
     };
 
-    const response = await sendMelhorEnvioRequest('/v2/me/shipment', payload);
+    const response = await sendMelhorEnvioRequest('/api/v2/me/shipment/calculate', payload);
     if (response.status < 200 || response.status >= 300) {
       return res.status(response.status).json({ error: response.data });
     }
 
     res.json(response.data);
   } catch (error) {
-    console.warn('[shipping] Melhor Envio aviso:', error.message || error);
-    if (['ENOTFOUND', 'EAI_AGAIN'].includes(error.code)) {
+    console.error('[shipping] Erro Melhor Envio:', error.message || error, 'code:', error.code);
+    if (!isProduction && ['ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT', 'ECONNREFUSED'].includes(error.code)) {
       return res.json({
         fallback: true,
         options: createDevShippingQuote(volumes || []),
@@ -134,8 +134,8 @@ router.post('/quote', async (req, res) => {
       });
     }
 
-    const message = error.code === 'ENOTFOUND'
-      ? 'Não foi possível resolver o host da Melhor Envio. Verifique a conexão de rede e o DNS.'
+    const message = ['ENOTFOUND', 'EAI_AGAIN'].includes(error.code)
+      ? 'Não foi possível conectar à Melhor Envio. Verifique a conexão de rede.'
       : error.message || 'Erro ao cotar frete Melhor Envio.';
     res.status(500).json({ error: message });
   }
